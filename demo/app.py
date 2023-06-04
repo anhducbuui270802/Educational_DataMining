@@ -56,7 +56,7 @@ st.markdown(button_style, unsafe_allow_html=True)
 if st.button("Dự đoán"):
     
     # Unpickle classifier
-    clf = joblib.load("clf.pkl")
+    clf = joblib.load("./demo/clf.pkl")
     
     # Store inputs into dataframe
     X = pd.DataFrame([[gioitinh, khoahoc, sotchk, hocky, dtbtl, drltl, dtbhk_truoc, drlhk_truoc, somon_khongdat_hktruoc]], 
