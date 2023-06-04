@@ -119,7 +119,13 @@ if uploaded_file is not None:
 
 
     # Export DataFrame to CSV
-    df.to_csv('output.csv', index=False)
+    # df.to_csv('output.csv', index=False)
+    @st.cache_data
+    def convert_df(df):
+        return df.to_csv(index=False).encode('utf-8')
+
+    csv = convert_df(df)
+    
 
 
     # Count the labels
@@ -135,4 +141,12 @@ if uploaded_file is not None:
     else:
         st.write("Số sinh viên dự đoán học lực yếu kém:", label_counts[0])
         st.write("Số sinh viên dự đoán học lực trên trung bình:", label_counts[1])
+        st.download_button(
+           
+    "Press to Download cvs file",
+    csv,
+    "predicted.csv",
+    "text/csv",
+    key='download-csv'
+    )
 
