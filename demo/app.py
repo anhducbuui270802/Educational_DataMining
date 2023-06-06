@@ -93,7 +93,8 @@ if st.button("Dự đoán"):
     prediction = clf.predict(X)[0]
     
     # Output prediction
-    st.text(f"Kết quả dự đoán: {prediction}")
+    predict = "Không" if prediction == 1 else "Có"
+    st.text(f"Có nguy cơ học lực yếu, kém ở kỳ tiếp theo hay không?: {predict}")
 
 # Batch prediction
 st.header("Dự đoán hàng loạt")
