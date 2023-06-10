@@ -50,12 +50,14 @@ somon_khongdat_hktruoc = st.number_input("Số môn không đạt học kì trư
 button_style = '''
     <style>
         .stButton button {
+            
             background-color: #0072B1;
             color: white;
             border-radius: 5px;
             font-weight: bold;
             padding: 8px 16px;
             box-shadow: none;
+            
         }
         .stButton button:hover {
             color: white;
@@ -91,10 +93,19 @@ if st.button("Dự đoán"):
     
     # Get prediction
     prediction = clf.predict(X)[0]
+    probabilities = clf.predict_proba(X)
     
     # Output prediction
-    predict = "Không" if prediction == 1 else "Có"
-    st.text(f"Có nguy cơ học lực yếu, kém ở kỳ tiếp theo hay không?: {predict}")
+    if prediction == 1:
+        predict = "Không"
+        probabiliti = "{:.2f}%".format(probabilities[0, 1] * 100)
+    else:
+        predict = "⚠️ Có"
+        probabiliti = "{:.2f}%".format(probabilities[0, 0] * 100)
+
+    st.text(f"Có nguy cơ học lực yếu, kém ở kỳ tiếp theo hay không?     \n{predict}     [Mức tin cậy: {probabiliti}]")
+    
+    
 
 # Batch prediction
 st.header("Dự đoán hàng loạt")
@@ -111,9 +122,15 @@ if uploaded_file is not None:
     
     # Make predictions
     predictions = clf.predict(df)
+    probabilities = clf.predict_proba(df)
+    # print(predictions)
 
     # Add predictions as a new column in the DataFrame
     df['predict'] = predictions
+
+    # Add probabilities as a new column in the DataFrame
+    max_values = [max(row) for row in probabilities]
+    df['probabilities'] = df.apply(lambda x: max_values[x.name], axis=1)
 
     # # Output input data and predictions
     # st.dataframe(df)
@@ -143,11 +160,58 @@ if uploaded_file is not None:
         st.write("Số sinh viên dự đoán học lực yếu kém:", label_counts[0])
         st.write("Số sinh viên dự đoán học lực trên trung bình:", label_counts[1])
         st.download_button(
-           
-    "Press to Download cvs file",
-    csv,
-    "predicted.csv",
-    "text/csv",
-    key='download-csv'
-    )
+        "Press to Download cvs file",
+        csv,
+        "predicted.csv",
+        "text/csv",
+        key='download-csv'
+        )
+        
+        # Filter
+
+        Filter = st.selectbox("Filter:", ("Các trường hợp dự đoán có độ tin cậy thấp", 
+                                        "Các trường hợp điểm kỳ trước cao nhưng dự đoán yếu, kém", 
+                                        "Các trường hợp điểm kỳ trước thấp nhưng dự đoán trên trung bình"))
+            
+
+        if st.button("Lọc"):
+            if Filter == "Các trường hợp dự đoán có độ tin cậy thấp" :
+                df_low_probabilities = df[df["probabilities"] < 0.6]
+                csv_low_probabilities = convert_df(df_low_probabilities)
+                st.write(f"Các trường hợp dự đoán có độ tin cậy thấp:")
+                st.dataframe(df_low_probabilities)
+                st.download_button(
+                "Press to Download cvs file",
+                csv_low_probabilities,
+                "predicted_low_probabilities.csv",
+                "text/csv",
+                key='download-csv-low-probabilities'
+                )
+            elif Filter == "Các trường hợp điểm kỳ trước cao nhưng dự đoán yếu, kém" :
+                df_H2L = df.loc[(df['dtbhk_truoc'] > 8) & (df['predict'] == 0)]
+                csv_H2L = convert_df(df_H2L)
+                st.write(f"Các trường hợp điểm kỳ trước cao nhưng dự đoán yếu, kém")
+                st.dataframe(df_H2L)
+                st.download_button(
+                "Press to Download cvs file",
+                csv_H2L,
+                "predicted_H2L.csv",
+                "text/csv",
+                key='download-csv-H2L'
+                )
+            elif Filter == "Các trường hợp điểm kỳ trước thấp nhưng dự đoán trên trung bình" :
+                df_L2H = df.loc[(df['dtbhk_truoc'] < 8) & (df['predict'] == 1)]
+                csv_L2H = convert_df(df_L2H)
+                st.write(f"Các trường hợp điểm kỳ trước thấp nhưng dự đoán trên trung bình")
+                st.dataframe(df_L2H)
+                st.download_button(
+                "Press to Download cvs file",
+                csv_L2H,
+                "predicted_L2H.csv",
+                "text/csv",
+                key='download-csv-L2H'
+                )
+
+          
+
 
