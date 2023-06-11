@@ -59,8 +59,8 @@ if st.button("Dự đoán"):
     clf = joblib.load("clf.pkl")
     
     # Store inputs into dataframe
-    X = pd.DataFrame([[gioitinh, khoahoc, sotchk, hocky, dtbtl, drltl, dtbhk_truoc, drlhk_truoc, somon_khongdat_hktruoc]], 
-                     columns = ["gioitinh", "khoahoc", "sotchk", "hocky_sx", "dtbtl", "drltl", "dtbhk_truoc", "drlhk_truoc", "somon_khongdat_hktruoc"])
+    X = pd.DataFrame([[gioitinh, khoahoc, hocky, sotchk, dtbtl, drltl, dtbhk_truoc, drlhk_truoc, somon_khongdat_hktruoc]], 
+                     columns = ["gioitinh", "khoahoc", "hocky_sx", "sotchk", "dtbtl", "drltl", "dtbhk_truoc", "drlhk_truoc", "somon_khongdat_hktruoc"])
     X = X.replace(["Nam", "Nữ"], [1, 0])
     
     # Get prediction
